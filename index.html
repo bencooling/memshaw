@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Process Memory Usage</title>
+    <!-- <link rel="stylesheet" href="//code.shutterstock.com/rickshaw/rickshaw.min.css"> -->
+    <link rel="stylesheet" href="//code.shutterstock.com/rickshaw/src/css/detail.css">
+    <link rel="stylesheet" href="//code.shutterstock.com/rickshaw/examples/css/extensions.css?v=2">
+    <link rel="stylesheet" href="//code.shutterstock.com/rickshaw/src/css/graph.css">
+    <link rel="stylesheet" href="//code.shutterstock.com/rickshaw/src/css/legend.css">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script>
+      jQuery.noConflict();
+    </script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.min.js"></script>
+    <script src="//code.shutterstock.com/rickshaw/examples/js/extensions.js"></script>
+  </head>
+  <body>
+  <div id="content">
+    <form id="side_panel">
+  		<h1>Process Memory Usage</h1>
+  		<section><div id="legend"></div></section>
+  		<section>
+  			<div id="renderer_form" class="toggler">
+  				<input type="radio" name="renderer" id="area" value="area" checked>
+  				<label for="area">area</label>
+  				<input type="radio" name="renderer" id="bar" value="bar">
+  				<label for="bar">bar</label>
+  				<input type="radio" name="renderer" id="line" value="line">
+  				<label for="line">line</label>
+  				<input type="radio" name="renderer" id="scatter" value="scatterplot">
+  				<label for="scatter">scatter</label>
+  			</div>
+  		</section>
+  		<section>
+  			<div id="offset_form">
+  				<label for="stack">
+  					<input type="radio" name="offset" id="stack" value="zero" checked>
+  					<span>stack</span>
+  				</label>
+  				<label for="stream">
+  					<input type="radio" name="offset" id="stream" value="wiggle">
+  					<span>stream</span>
+  				</label>
+  				<label for="pct">
+  					<input type="radio" name="offset" id="pct" value="expand">
+  					<span>pct</span>
+  				</label>
+  				<label for="value">
+  					<input type="radio" name="offset" id="value" value="value">
+  					<span>value</span>
+  				</label>
+  			</div>
+  			<div id="interpolation_form">
+  				<label for="cardinal">
+  					<input type="radio" name="interpolation" id="cardinal" value="cardinal" checked>
+  					<span>cardinal</span>
+  				</label>
+  				<label for="linear">
+  					<input type="radio" name="interpolation" id="linear" value="linear">
+  					<span>linear</span>
+  				</label>
+  				<label for="step">
+  					<input type="radio" name="interpolation" id="step" value="step-after">
+  					<span>step</span>
+  				</label>
+  			</div>
+  		</section>
+  		<section>
+  			<h6>Smoothing</h6>
+  			<div id="smoother"></div>
+  		</section>
+  		<section></section>
+  	</form>
+
+    <div id="chart_container">
+  		<div id="chart"></div>
+  		<div id="timeline"></div>
+  		<div id="preview"></div>
+  	</div>
+  </div>
+
+    <script>
+      var socket = io();
+
+      // var series = {memory};
+      var series = {
+        rss: [ { x: {{time}}, y: {{rss}} } ],
+        heapTotal: [ { x: {{time}}, y: {{heapTotal}} } ],
+        heapUsed: [ { x: {{time}}, y: {{heapUsed}} } ]
+      };
+      var updateSeries = function updateSeries(mem, series) {
+        return Object.keys(series).reduce(function (obj, key) {
+          obj[key].push({ x: mem.time, y: Number(mem[key]) });
+          // obj[key].slice(0, 10); // limit to 10 results
+          return obj;
+        }, series);
+      };
+
+      socket.on('memory usage', function(memoryUsage){
+        series = updateSeries(memoryUsage, series);
+        graph.update();
+      });
+
+      var color = {
+        peach: '#ff4351', ocean: '#1b9af7', musk: '#ed4694', lime: '#8bd300' };
+
+      var graph = new Rickshaw.Graph( {
+        element: document.getElementById('chart'),
+        width: 800,
+        height: 300,
+        renderer: 'line',
+        series: [{
+          color: color.peach,
+          name: 'rss',
+          data: series.rss
+        }, {
+          color: color.ocean,
+          name: 'heapTotal',
+          data: series.heapTotal
+        }, {
+          color: color.lime,
+          name: 'heapUsed',
+          data: series.heapUsed
+        }]
+      });
+      graph.render();
+
+      var preview = new Rickshaw.Graph.RangeSlider({
+      	graph: graph,
+      	element: document.getElementById('preview'),
+      });
+      var hoverDetail = new Rickshaw.Graph.HoverDetail({
+      	graph: graph,
+      	xFormatter: function(x) {
+      		return new Date(x * 1000).toString();
+      	}
+      });
+      var annotator = new Rickshaw.Graph.Annotate({
+      	graph: graph,
+      	element: document.getElementById('timeline')
+      });
+      var legend = new Rickshaw.Graph.Legend( {
+        element: document.getElementById('legend'),
+        graph: graph
+      });
+      var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+      	graph: graph,
+      	legend: legend
+      });
+      var order = new Rickshaw.Graph.Behavior.Series.Order( {
+      	graph: graph,
+      	legend: legend
+      });
+      var highlighter = new Rickshaw.Graph.Behavior.Series.Highlight( {
+      	graph: graph,
+      	legend: legend
+      });
+      var smoother = new Rickshaw.Graph.Smoother( {
+      	graph: graph,
+      	element: document.getElementById('smoother')
+      });
+
+      var ticksTreatment = 'glow';
+
+      var xAxis = new Rickshaw.Graph.Axis.Time( {
+      	graph: graph,
+      	ticksTreatment: ticksTreatment,
+      	timeFixture: new Rickshaw.Fixtures.Time.Local()
+      } );
+      xAxis.render();
+
+      var yAxis = new Rickshaw.Graph.Axis.Y( {
+      	graph: graph,
+      	tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+      	ticksTreatment: ticksTreatment
+      });
+      yAxis.render();
+
+      var controls = new RenderControls( {
+      	element: document.querySelector('form'),
+      	graph: graph
+      });
+
+    </script>
+  </body>
+</html>
