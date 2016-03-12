@@ -19,9 +19,9 @@ Inspired by
 }
 ```
 
-1. Visit your application in the browser using the `/memshaw` path i.e. `localhost:3000/memshaw`
+2. Visit your application in the browser using the `/memshaw` path i.e. `localhost:3000/memshaw`
 
-1. Get your app to chew on some memory! For example you could have a terrible route that you `curl http://localhost:3000/stress` like this:
+3. Get your app to chew on some memory! For example you could have a terrible route that you `curl http://localhost:3000/stress` like this:
 ```javascript
 server.route({
   method: 'GET',

@@ -4,9 +4,7 @@
   "description": "Hapijs plugin to monitor your application's memory",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "compile": "babel index.es6.js -o index.js",
-    "prepublish": "npm run compile"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -28,10 +26,7 @@
     "bytes": "^2.3.0",
     "socket.io": "^1.4.5"
   },
-  "devDependencies": {
-    "babel-cli": "^6.5.1"
-  },
   "peerDependencies": {
-    "hapi": "^9.0.1 || ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0"
+    "hapi": "^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0"
   }
 }
