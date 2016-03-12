@@ -115,15 +115,15 @@
         renderer: 'line',
         series: [{
           color: color.peach,
-          name: 'rss',
+          name: 'RSS',
           data: series.rss
         }, {
           color: color.ocean,
-          name: 'heapTotal',
+          name: 'Heap (total)',
           data: series.heapTotal
         }, {
           color: color.lime,
-          name: 'heapUsed',
+          name: 'Heap (used)',
           data: series.heapUsed
         }]
       });
@@ -185,6 +185,12 @@
       	graph: graph
       });
 
+      var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+        graph: graph,
+        formatter: function(series, x, y) {
+          return series.name + ': ' + y + 'MB';
+        }
+      });
     </script>
   </body>
 </html>
