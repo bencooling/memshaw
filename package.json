@@ -1,6 +1,6 @@
 {
   "name": "memshaw",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Hapijs plugin to monitor your application's memory",
   "main": "index.js",
   "scripts": {
