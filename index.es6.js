@@ -41,6 +41,5 @@ exports.register = (server, options, next) => {
 };
 
 exports.register.attributes = {
-  name: 'memshaw',
-  version: '0.0.1',
+  pkg: require('./package.json')
 };
