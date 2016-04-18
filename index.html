@@ -133,12 +133,12 @@
       	graph: graph,
       	element: document.getElementById('preview'),
       });
-      var hoverDetail = new Rickshaw.Graph.HoverDetail({
-      	graph: graph,
-      	xFormatter: function(x) {
-      		return new Date(x * 1000).toString();
-      	}
-      });
+      // var hoverDetail = new Rickshaw.Graph.HoverDetail({
+      // 	graph: graph,
+      // 	xFormatter: function(x) {
+      // 		return new Date(x * 1000).toString();
+      // 	}
+      // });
       var annotator = new Rickshaw.Graph.Annotate({
       	graph: graph,
       	element: document.getElementById('timeline')
